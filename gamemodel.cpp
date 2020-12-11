@@ -1,5 +1,4 @@
 #include "gamemodel.h"
-#include <QMessageBox>
 const int kBoardSizeNum = 15;
 
 gamemodel::gamemodel()
@@ -78,20 +77,18 @@ bool gamemodel::isDeadGame()
 	return true;
 }
 
-void gamemodel::startGame(GameType type)
+void gamemodel::startGame()
 {
-	gameType = type;
 	// 初始棋盘
 	gameMapVec.clear();
 	for (int i = 0; i < kBoardSizeNum; i++)
 	{
 		std::vector<int> lineBoard;
-		for (int j = 0; j < kBoardSizeNum; j++)
+		lineBoard.reserve(kBoardSizeNum);
+for (int j = 0; j < kBoardSizeNum; j++)
 			lineBoard.push_back(0);
 		gameMapVec.push_back(lineBoard);
 	}
-
-	// AI模式
 
 	// 黑方下为true,白方下为false
 	playerFlag = true;
@@ -119,7 +116,7 @@ int gamemodel::actionByPerson(int row, int col)
 			gameMapVec[row][col] = 0;
 			return check;
 		}
-		if (isWin(row, col) == false && check != 0)
+		if (!isWin(row, col) && check != 0)
 		{
 			gameMapVec[row][col] = 0;
 			return check;

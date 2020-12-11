@@ -34,8 +34,7 @@ game::game(QWidget *parent, GameType type) :
 	}
 	else
 	{
-		model->gameStatus = PLAYING;
-		model->startGame(game_type);
+		model->startGame();
 	}
 	update();
 }
@@ -85,10 +84,9 @@ void game::paintEvent(QPaintEvent *event)
 		brush.setColor(Qt::red);
 		painter.setBrush(brush);
 		painter.drawEllipse(kBoardMargin + kBlockSize * lastCol - kPointR, kBoardMargin + kBlockSize * lastRow - kPointR, kPointR * 2, kPointR * 2);
-		if (model->isWin(lastRow, lastCol) && model->gameStatus == PLAYING)
+		if (model->isWin(lastRow, lastCol))
 		{
 			qDebug("win");
-			model->gameStatus = WIN;
 			QSound::play(WIN_SOUND);
 			QString str;
 			if (model->gameMapVec[clickPosRow][clickPosCol] == 1)
@@ -99,8 +97,7 @@ void game::paintEvent(QPaintEvent *event)
 			// 重置游戏状态
 			lastRow = -1;
 			lastCol = -1;
-			model->startGame(game_type);
-			model->gameStatus = PLAYING;
+			model->startGame();
 		}
 	}
 	// 判断死局
@@ -108,8 +105,7 @@ void game::paintEvent(QPaintEvent *event)
 	{
 		QSound::play(LOSE_SOUND);
 		QMessageBox::information(this, "oops", "dead game!");
-		model->startGame(game_type);
-		model->gameStatus = PLAYING;
+		model->startGame();
 	}
 }
 
@@ -166,15 +162,10 @@ void game::mouseReleaseEvent(QMouseEvent *event)
 	if (game_type == PVE && model->playerFlag)
 	{
 		chessOneByPerson();
-		// 用定时器做一个延迟
 		//QTimer::singleShot(kAIDelay, this, SLOT(chessOneByAI()));
 	}
 	if (game_type == PVP)
 		chessOneByPerson();
-	if (game_type == EVE)
-	{
-		//QTimer::singleShot(kAIDelay * 2, this, SLOT(chessTwoByAI()));
-	}
 }
 
 void game::chessOneByPerson()

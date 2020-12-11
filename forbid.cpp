@@ -1,7 +1,7 @@
 #include "forbid.h"
 #include <QDebug>
 const int kMapSizeNum = 15;
-int forbid::check(std::vector <std::vector<int> > map, int x, int y)
+int forbid::check(const std::vector <std::vector<int> >& map, int x, int y)
 {
 	if (fb33(map, x, y))
 	{
@@ -25,8 +25,8 @@ bool forbid::fb33(std::vector <std::vector<int> > map, int x, int y)
 {
 	//三三禁手，活三
 	int fb33_1 = 0;
-	int i = 0;
-	int j = 0;
+	int i;
+	int j;
 	for (j = 0; j <= 9; j++)
 	{
 		if (map[x][j] == 0 && map[x][j + 5] == 0)
@@ -48,9 +48,7 @@ bool forbid::fb33(std::vector <std::vector<int> > map, int x, int y)
 
 	//竖活三
 	int fb33_2 = 0;
-	i = 0;
-	j = 0;
-	for (i = 0; i <= 9; i++)
+    for (i = 0; i <= 9; i++)
 	{
 		if (map[i][y] == 0 && map[i + 5][y] == 0)
 		{
@@ -134,8 +132,8 @@ bool forbid::fb44(std::vector <std::vector<int> > map, int x, int y)
 {
 	//44禁手，活四或者冲四
 	int fb44_1 = 0;
-	int i = 0;
-	int j = 0;
+	int i;
+	int j;
 	//横四
 	for (j = 0; j <= 10; j++)
 	{
@@ -164,9 +162,7 @@ bool forbid::fb44(std::vector <std::vector<int> > map, int x, int y)
 
 	//竖四
 	int fb44_2 = 0;
-	i = 0;
-	j = 0;
-	for (i = 0; i <= 10; i++)
+    for (i = 0; i <= 10; i++)
 	{
 		if (x == i || x == i + 1 || x == i + 2 || x == i + 3 || x == i + 4)
 		{

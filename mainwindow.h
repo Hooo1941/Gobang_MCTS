@@ -11,8 +11,8 @@ class MainWindow : public QMainWindow
 	Q_OBJECT
 
 public:
-	MainWindow(QWidget *parent = nullptr);
-	~MainWindow();
+	explicit MainWindow(QWidget *parent = nullptr);
+	~MainWindow() override;
 
 private slots:
 	void on_exit_clicked();
@@ -25,6 +25,6 @@ private slots:
 
 private:
 	Ui::MainWindow *ui;
-	game *g;
+	game *g{};
 };
 #endif // MAINWINDOW_H
