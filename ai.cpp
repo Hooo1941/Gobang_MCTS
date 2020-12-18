@@ -182,6 +182,7 @@ void ai::run()
 	{
 		path.clear();
 		node *leaf = selection(root);
+		qDebug(QString::number(path.size(), 10).toLatin1());
 		if (leaf->visit > 0 && leaf->children.empty())
 			leaf = expansion(leaf);
 		int score = simulation(leaf);

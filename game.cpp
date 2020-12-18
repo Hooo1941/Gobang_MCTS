@@ -1,5 +1,4 @@
 #include <QPainter>
-#include <QTimer>
 #include <QSound>
 #include <QMouseEvent>
 #include <QMessageBox>
