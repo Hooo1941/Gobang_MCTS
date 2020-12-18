@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <forbid.h>
+#include "config.h"
 enum GameType
 {
 	PVP,
@@ -21,12 +22,8 @@ public:
 	bool playerFlag = true; // 标示下棋方
 	//GameStatus gameStatus = PLAYING; // 游戏状态
 	void startGame();
-	int actionByPerson(int row, int col); // 人执行下棋
+	int action(int row, int col); // 人执行下棋
 	void updateGameMap(int row, int col);
-	gamemodel();
-	~gamemodel();
-private:
-	forbid *fb;
 };
 
 #endif // GAMEMODEL_H

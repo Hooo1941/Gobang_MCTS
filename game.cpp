@@ -11,15 +11,6 @@
 #define WIN_SOUND ":/res/sound/win.wav"
 #define LOSE_SOUND ":/res/sound/lose.wav"
 #define BG_IMG ":/res/image/board.jpg"
-const int kBoardSize = 535; //棋盘大小
-const int kBoardMargin = 23; // 棋盘边缘空隙
-const int kRadius = 14; // 棋子半径
-const int kPointR = 3; // 中心红点半径
-const int kMarkSize = 8; // 落子标记边长
-const int kBlockSize = 35; // 格子的大小
-const int kPosDelta = 18; // 鼠标点击的模糊距离上限
-const int kAIDelay = 700; // AI下棋的思考时间
-const int kBoardSizeNum = 15; // 15路棋盘
 game::game(QWidget *parent, GameType type) :
 	QMainWindow(parent)
 {
@@ -27,15 +18,10 @@ game::game(QWidget *parent, GameType type) :
 	// 开启鼠标hover功能
 	setMouseTracking(true);
 	model = new gamemodel;
+	model->startGame();
 	game_type = type;
 	if (game_type == EVE)
-	{
-		return;
-	}
-	else
-	{
-		model->startGame();
-	}
+	    chessByAI();
 	update();
 }
 
@@ -161,26 +147,48 @@ void game::mouseReleaseEvent(QMouseEvent *event)
 {
 	if (game_type == PVE && model->playerFlag)
 	{
-		chessOneByPerson();
-		//QTimer::singleShot(kAIDelay, this, SLOT(chessOneByAI()));
+		if (chessOneByPerson())
+			chessOneByAI();
 	}
 	if (game_type == PVP)
 		chessOneByPerson();
 }
 
-void game::chessOneByPerson()
+void game::chessSlot(int row, int col)
+{
+	model->action(row, col);
+	QSound::play(CHESS_ONE_SOUND);
+}
+
+void game::chessOneByAI()
+{
+	ai *t;
+	t = new ai(model->gameMapVec, model->playerFlag, this);
+	connect(t, SIGNAL(pos(int, int)), this, SLOT(chessSlot(int, int)));
+	connect(t, SIGNAL(finished()), t, SLOT(deleteLater()));
+	//执行子线程
+	t->start();
+}
+
+void game::chessByAI()
+{
+	chessOneByAI();
+}
+
+bool game::chessOneByPerson()
 {
 	// 根据当前存储的坐标下子
 	// 只有有效点击才下子，并且该处没有子
 	if (clickPosRow >= 0 && clickPosCol >= 0 && clickPosRow < kBoardSizeNum && clickPosCol < kBoardSizeNum && model->gameMapVec[clickPosRow][clickPosCol] == 0)
 	{
-		int res = model->actionByPerson(clickPosRow, clickPosCol);
+		int res = model->action(clickPosRow, clickPosCol);
 		if (res == 0)
 		{
 			lastRow = clickPosRow;
 			lastCol = clickPosCol;
 			QSound::play(CHESS_ONE_SOUND);
 			update();
+			return true;
 		}
 		else
 		{
@@ -192,8 +200,10 @@ void game::chessOneByPerson()
 			if (res == 3)
 				str = "Overline";
 			QMessageBox::information(this, "Oops", str + " Forbidden moves");
+			return false;
 		}
 	}
+	return false;
 }
 
 game::~game()

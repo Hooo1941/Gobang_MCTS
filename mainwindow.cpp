@@ -22,21 +22,21 @@ void MainWindow::on_pvp_clicked()
 {
 	//game g;
 	//g.show();
-	g = new game(nullptr, PVP);
+	g = new game(this, PVP);
 	g->setAttribute(Qt::WA_DeleteOnClose);
 	g->show();
 }
 
 void MainWindow::on_pve_clicked()
 {
-	g = new game(nullptr, PVE);
+	g = new game(this, PVE);
 	g->setAttribute(Qt::WA_DeleteOnClose);
 	g->show();
 }
 
 void MainWindow::on_eve_clicked()
 {
-	g = new game(nullptr, EVE);
+	g = new game(this, EVE);
 	g->setAttribute(Qt::WA_DeleteOnClose);
 	g->show();
 

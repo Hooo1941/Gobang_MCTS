@@ -3,7 +3,8 @@
 
 #include <QMainWindow>
 #include "gamemodel.h"
-
+#include "ai.h"
+#include "config.h"
 class game : public QMainWindow
 {
 	Q_OBJECT
@@ -23,8 +24,11 @@ private:
 	GameType game_type; // 存储游戏类型
 	int clickPosRow = 0, clickPosCol = 0; // 存储将点击的位置
 	int lastCol = -1, lastRow = -1;
+	bool chessOneByPerson(); // 人执行
+	void chessByAI();
+	void chessOneByAI();
 private slots:
-	void chessOneByPerson(); // 人执行
+	void chessSlot(int row, int col);
 };
 
 #endif // GAME_H

@@ -1,8 +1,13 @@
 #include "forbid.h"
 #include <QDebug>
-const int kMapSizeNum = 15;
 int forbid::check(const std::vector <std::vector<int> >& map, int x, int y)
 {
+	if (fbol(map, x, y))
+	{
+		qDebug("ol");
+		return 3;
+	}
+	if (isWin(map, x, y)) return 0;
 	if (fb33(map, x, y))
 	{
 		qDebug("33");
@@ -13,13 +18,67 @@ int forbid::check(const std::vector <std::vector<int> >& map, int x, int y)
 		qDebug("44");
 		return 2;
 	}
-	if (fbol(map, x, y))
-	{
-		qDebug("ol");
-		return 3;
-	}
 	return 0;
 }
+
+bool forbid::isWin(std::vector<std::vector<int> > map, int row, int col)
+{
+	// 横竖斜四种大情况，每种情况都根据当前落子往后遍历5个棋子，有一种符合就算赢
+	// 水平方向
+	for (int i = 0; i < 5; i++)
+	{
+		// 左右延申4个
+		if (col - i >= 0 &&
+			col - i + 4 < kBoardSizeNum &&
+			map[row][col - i] == map[row][col - i + 1] &&
+			map[row][col - i] == map[row][col - i + 2] &&
+			map[row][col - i] == map[row][col - i + 3] &&
+			map[row][col - i] == map[row][col - i + 4])
+			return true;
+	}
+
+	// 竖直方向(上下延伸4个)
+	for (int i = 0; i < 5; i++)
+	{
+		if (row - i >= 0 &&
+			row - i + 4 < kBoardSizeNum &&
+			map[row - i][col] == map[row - i + 1][col] &&
+			map[row - i][col] == map[row - i + 2][col] &&
+			map[row - i][col] == map[row - i + 3][col] &&
+			map[row - i][col] == map[row - i + 4][col])
+			return true;
+	}
+
+	// 左斜方向
+	for (int i = 0; i < 5; i++)
+	{
+		if (row + i < kBoardSizeNum &&
+			row + i - 4 >= 0 &&
+			col - i >= 0 &&
+			col - i + 4 < kBoardSizeNum &&
+			map[row + i][col - i] == map[row + i - 1][col - i + 1] &&
+			map[row + i][col - i] == map[row + i - 2][col - i + 2] &&
+			map[row + i][col - i] == map[row + i - 3][col - i + 3] &&
+			map[row + i][col - i] == map[row + i - 4][col - i + 4])
+			return true;
+	}
+
+	// 右斜方向
+	for (int i = 0; i < 5; i++)
+	{
+		if (row - i >= 0 &&
+			row - i + 4 < kBoardSizeNum &&
+			col - i >= 0 &&
+			col - i + 4 < kBoardSizeNum &&
+			map[row - i][col - i] == map[row - i + 1][col - i + 1] &&
+			map[row - i][col - i] == map[row - i + 2][col - i + 2] &&
+			map[row - i][col - i] == map[row - i + 3][col - i + 3] &&
+			map[row - i][col - i] == map[row - i + 4][col - i + 4])
+			return true;
+	}
+	return false;
+}
+
 
 bool forbid::fb33(std::vector <std::vector<int> > map, int x, int y)
 {
@@ -260,7 +319,7 @@ bool forbid::fbol(std::vector <std::vector<int> > map,int x,int y)
 	int ol = 0, win = 0;
 	for (int i = 0; i < 6; i++)
 	{
-		if (y - i >= 0 &&y - i + 5 < kMapSizeNum &&
+		if (y - i >= 0 &&y - i + 5 < kBoardSizeNum &&
 			map[x][y - i] == map[x][y - i + 1] &&
 			map[x][y - i] == map[x][y - i + 2] &&
 			map[x][y - i] == map[x][y - i + 3] &&
@@ -270,7 +329,7 @@ bool forbid::fbol(std::vector <std::vector<int> > map,int x,int y)
 	}
 	for (int i = 0; i < 6; i++)
 	{
-		if (x - i >= 0 &&x - i + 5 < kMapSizeNum &&
+		if (x - i >= 0 &&x - i + 5 < kBoardSizeNum &&
 			map[x - i][y] == map[x - i + 1][y] &&
 			map[x - i][y] == map[x - i + 2][y] &&
 			map[x - i][y] == map[x - i + 3][y] &&
@@ -280,8 +339,8 @@ bool forbid::fbol(std::vector <std::vector<int> > map,int x,int y)
 	}
 	for (int i = 0; i < 6; i++)
 	{
-		if (x + i < kMapSizeNum && x + i - 5 >= 0 &&
-			y - i >= 0 && y - i + 5 < kMapSizeNum &&
+		if (x + i < kBoardSizeNum && x + i - 5 >= 0 &&
+			y - i >= 0 && y - i + 5 < kBoardSizeNum &&
 			map[x + i][y - i] == map[x + i - 1][y - i + 1] &&
 			map[x + i][y - i] == map[x + i - 2][y - i + 2] &&
 			map[x + i][y - i] == map[x + i - 3][y - i + 3] &&
@@ -291,8 +350,8 @@ bool forbid::fbol(std::vector <std::vector<int> > map,int x,int y)
 	}
 	for (int i = 0; i < 6; i++)
 	{
-		if (x - i >= 0 && x - i + 5 < kMapSizeNum &&
-			y - i >= 0 && y - i + 5 < kMapSizeNum &&
+		if (x - i >= 0 && x - i + 5 < kBoardSizeNum &&
+			y - i >= 0 && y - i + 5 < kBoardSizeNum &&
 			map[x - i][y - i] == map[x - i + 1][y - i + 1] &&
 			map[x - i][y - i] == map[x - i + 2][y - i + 2] &&
 			map[x - i][y - i] == map[x - i + 3][y - i + 3] &&
@@ -305,7 +364,7 @@ bool forbid::fbol(std::vector <std::vector<int> > map,int x,int y)
 	{
 		// 左右延申4个
 		if (y - i >= 0 &&
-			y - i + 4 < kMapSizeNum &&
+			y - i + 4 < kBoardSizeNum &&
 			map[x][y - i] == map[x][y - i + 1] &&
 			map[x][y - i] == map[x][y - i + 2] &&
 			map[x][y - i] == map[x][y - i + 3] &&
@@ -320,7 +379,7 @@ bool forbid::fbol(std::vector <std::vector<int> > map,int x,int y)
 	for (int i = 0; i < 5; i++)
 	{
 		if (x - i >= 0 &&
-			x - i + 4 < kMapSizeNum &&
+			x - i + 4 < kBoardSizeNum &&
 			map[x - i][y] == map[x - i + 1][y] &&
 			map[x - i][y] == map[x - i + 2][y] &&
 			map[x - i][y] == map[x - i + 3][y] &&
@@ -334,10 +393,10 @@ bool forbid::fbol(std::vector <std::vector<int> > map,int x,int y)
 	// 左斜方向
 	for (int i = 0; i < 5; i++)
 	{
-		if (x + i < kMapSizeNum &&
+		if (x + i < kBoardSizeNum &&
 			x + i - 4 >= 0 &&
 			y - i >= 0 &&
-			y - i + 4 < kMapSizeNum &&
+			y - i + 4 < kBoardSizeNum &&
 			map[x + i][y - i] == map[x + i - 1][y - i + 1] &&
 			map[x + i][y - i] == map[x + i - 2][y - i + 2] &&
 			map[x + i][y - i] == map[x + i - 3][y - i + 3] &&
@@ -352,9 +411,9 @@ bool forbid::fbol(std::vector <std::vector<int> > map,int x,int y)
 	for (int i = 0; i < 5; i++)
 	{
 		if (x - i >= 0 &&
-			x - i + 4 < kMapSizeNum &&
+			x - i + 4 < kBoardSizeNum &&
 			y - i >= 0 &&
-			y - i + 4 < kMapSizeNum &&
+			y - i + 4 < kBoardSizeNum &&
 			map[x - i][y - i] == map[x - i + 1][y - i + 1] &&
 			map[x - i][y - i] == map[x - i + 2][y - i + 2] &&
 			map[x - i][y - i] == map[x - i + 3][y - i + 3] &&

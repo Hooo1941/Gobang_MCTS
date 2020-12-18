@@ -1,7 +1,7 @@
 #ifndef FORBID_H
 #define FORBID_H
 #include <vector>
-
+#include "config.h"
 class forbid
 {
 public:
@@ -9,6 +9,7 @@ public:
 	static bool fb33(std::vector<std::vector<int> > map, int x, int y);
 	static bool fb44(std::vector<std::vector<int> > map, int x, int y);
 	static bool fbol(std::vector<std::vector<int> > map, int x, int y);
+	static bool isWin(std::vector<std::vector<int> > map, int x, int y);
 };
 
 #endif // FORBID_H

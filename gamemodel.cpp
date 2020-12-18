@@ -1,11 +1,4 @@
 #include "gamemodel.h"
-const int kBoardSizeNum = 15;
-
-gamemodel::gamemodel()
-{
-	fb = new forbid();
-}
-
 bool gamemodel::isWin(int row, int col)
 {
 	// 横竖斜四种大情况，每种情况都根据当前落子往后遍历5个棋子，有一种符合就算赢
@@ -61,7 +54,6 @@ bool gamemodel::isWin(int row, int col)
 			gameMapVec[row - i][col - i] == gameMapVec[row - i + 4][col - i + 4])
 			return true;
 	}
-
 	return false;
 }
 
@@ -105,18 +97,13 @@ void gamemodel::updateGameMap(int row, int col)
 	playerFlag = !playerFlag;
 }
 
-int gamemodel::actionByPerson(int row, int col)
+int gamemodel::action(int row, int col)
 {
 	if (playerFlag)
 	{
 		gameMapVec[row][col] = 1;
-		int check = fb->check(gameMapVec, row, col);
-		if (check == 3)
-		{
-			gameMapVec[row][col] = 0;
-			return check;
-		}
-		if (!isWin(row, col) && check != 0)
+		int check = forbid::check(gameMapVec, row, col);
+		if (check != 0)
 		{
 			gameMapVec[row][col] = 0;
 			return check;
@@ -124,13 +111,4 @@ int gamemodel::actionByPerson(int row, int col)
 	}
 	updateGameMap(row, col);
 	return 0;
-}
-
-gamemodel::~gamemodel()
-{
-	if (fb)
-	{
-		delete fb;
-		fb = nullptr;
-	}
 }

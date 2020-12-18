@@ -44,7 +44,7 @@ if(ANDROID)
     ai.h
     forbid.cpp
     forbid.h
-  )
+          config.h)
 else()
   add_executable(Gobang_MCTS
       ${QRC_FILES}
@@ -61,7 +61,7 @@ else()
     ai.h
     forbid.cpp
     forbid.h
-  )
+          config.h)
 endif()
 
 target_link_libraries(Gobang_MCTS PRIVATE Qt5::Widgets Qt5::Multimedia)
