@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 
 project(Gobang_MCTS LANGUAGES CXX)
 file(GLOB_RECURSE QRC_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.qrc)
-
+add_compile_options(-O3)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set(CMAKE_AUTOUIC ON)

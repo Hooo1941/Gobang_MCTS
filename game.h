@@ -27,6 +27,7 @@ private:
 	bool chessOneByPerson(); // 人执行
 	void chessByAI();
 	void chessOneByAI();
+	bool AIWorking = false;
 private slots:
 	void chessSlot(int row, int col);
 };

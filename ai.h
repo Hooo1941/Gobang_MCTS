@@ -22,7 +22,6 @@ struct node
 //	r(_r), c(_c), playerFlag(_p) {}
 //};
 
-double UCB(const node& x, int total);
 class ai : public QThread
 {
 Q_OBJECT
@@ -35,14 +34,15 @@ protected:
 private:
 	std::vector<std::vector<int> > map;
 	bool empty();
-	bool check(std::vector<std::vector<int> > mapCheck, int r, int c) const;
+	bool check(std::vector<std::vector<int> > mapCheck, int r, int c, int playerNow) const;
 	bool playerFlag = true;
 	node *selection(node *root);
 	node *expansion(node *&root);
 	static bool isWin(std::vector<std::vector<int> > gameMapVec, int row, int col);
-	int simulation(node *&root);
+	int simulation();
 	void backPropagation(int score);
 	std::vector <node *> path;
+	bool flag = true;
 signals:
 	void pos(int, int);
 };

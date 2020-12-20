@@ -4,6 +4,9 @@
 #include <QMessageBox>
 #include <QMenuBar>
 #include <cmath>
+#include <QTime>
+#include <QCoreApplication>
+#include <QApplication>
 #include "game.h"
 
 #define CHESS_ONE_SOUND ":/res/sound/chessone.wav"
@@ -19,9 +22,9 @@ game::game(QWidget *parent, GameType type) :
 	model = new gamemodel;
 	model->startGame();
 	game_type = type;
+	update();
 	if (game_type == EVE)
 	    chessByAI();
-	update();
 }
 
 void game::paintEvent(QPaintEvent *event)
@@ -68,15 +71,15 @@ void game::paintEvent(QPaintEvent *event)
 	{
 		brush.setColor(Qt::red);
 		painter.setBrush(brush);
+		// 上次下棋点
 		painter.drawEllipse(kBoardMargin + kBlockSize * lastCol - kPointR, kBoardMargin + kBlockSize * lastRow - kPointR, kPointR * 2, kPointR * 2);
 		if (model->isWin(lastRow, lastCol))
 		{
-			qDebug("win");
 			QSound::play(WIN_SOUND);
 			QString str;
-			if (model->gameMapVec[clickPosRow][clickPosCol] == 1)
+			if (model->gameMapVec[lastRow][lastCol] == 1)
 				str = "black player";
-			else if (model->gameMapVec[clickPosRow][clickPosCol] == -1)
+			else if (model->gameMapVec[lastRow][lastCol] == -1)
 				str = "white player";
 			QMessageBox::information(this, "congratulations", str + " win!");
 			// 重置游戏状态
@@ -96,6 +99,10 @@ void game::paintEvent(QPaintEvent *event)
 
 void game::mouseMoveEvent(QMouseEvent *event)
 {
+	if (game_type == EVE && !AIWorking)
+	{
+		chessOneByAI();
+	}
 	// 通过鼠标的hover确定落子的标记
 	int x = event->x();
 	int y = event->y();
@@ -151,16 +158,22 @@ void game::mouseReleaseEvent(QMouseEvent *event)
 	}
 	if (game_type == PVP)
 		chessOneByPerson();
+//	if (game_type == EVE)
+//		chessOneByAI();
 }
 
 void game::chessSlot(int row, int col)
 {
+	lastRow = row, lastCol = col;
 	model->action(row, col);
 	QSound::play(CHESS_ONE_SOUND);
+	update();
+	AIWorking = false;
 }
 
 void game::chessOneByAI()
 {
+	AIWorking = true;
 	ai *t;
 	t = new ai(model->gameMapVec, model->playerFlag, this);
 	connect(t, SIGNAL(pos(int, int)), this, SLOT(chessSlot(int, int)));
@@ -171,7 +184,6 @@ void game::chessOneByAI()
 
 void game::chessByAI()
 {
-	chessOneByAI();
 }
 
 bool game::chessOneByPerson()

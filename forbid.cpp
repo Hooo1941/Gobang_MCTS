@@ -4,18 +4,15 @@ int forbid::check(const std::vector <std::vector<int> >& map, int x, int y)
 {
 	if (fbol(map, x, y))
 	{
-		qDebug("ol");
 		return 3;
 	}
 	if (isWin(map, x, y)) return 0;
 	if (fb33(map, x, y))
 	{
-		qDebug("33");
 		return 1;
 	}
 	if (fb44(map, x, y))
 	{
-		qDebug("44");
 		return 2;
 	}
 	return 0;

@@ -4,9 +4,8 @@
 #include <random>
 double UCB(const node *x, int total)
 {
-	if (x->playerFlag)
+	if (x->visit == 0) return 1e9;
 		return x->win / (double)x->visit + kConfidence * std::sqrt(std::log((double)total) / (double)x->visit);
-	return 1.0 - x->win / (double)x->visit + kConfidence * std::sqrt(std::log((double)total) / (double)x->visit);
 }
 
 bool ai::isWin(std::vector<std::vector<int> > gameMapVec, int row, int col)
@@ -80,10 +79,10 @@ bool ai::empty()
 	return true;
 }
 
-bool ai::check(std::vector<std::vector<int> > mapCheck, int r, int c) const
+bool ai::check(std::vector<std::vector<int> > mapCheck, int r, int c, int playerNow) const
 {
 	if (mapCheck[r][c] != 0) return false;
-	if (playerFlag)
+	if (playerNow)
 	{
 		mapCheck[r][c] = 1;
 		int check = forbid::check(mapCheck, r, c);
@@ -165,7 +164,7 @@ void ai::run()
 	std::vector<std::pair<int, int> > available;
 	for (int i=0; i<kBoardSizeNum; i++)
 		for (int j=0; j<kBoardSizeNum; j++)
-			if (check(map, i, j))
+			if (check(map, i, j, playerFlag))
 			{
 				available.emplace_back(std::make_pair(i, j));
 			}
@@ -175,19 +174,22 @@ void ai::run()
 		return;
 	}
 	node *root = new node;
-	root->playerFlag = playerFlag;
+	root->playerFlag = !playerFlag;
 	root->pos = std::make_pair(-1, -1);
-
 	while (time(nullptr) - start < kAIDelay)
 	{
 		path.clear();
 		node *leaf = selection(root);
-		qDebug(QString::number(path.size(), 10).toLatin1());
 		if (leaf->visit > 0 && leaf->children.empty())
 			leaf = expansion(leaf);
-		int score = simulation(leaf);
+		int score = simulation();
 		backPropagation(score);
 	}
+	printf("%d\n",root->visit);
+	if (root->children[0]->playerFlag) printf("black\n");
+	else printf("white");
+	for (int i=0; i<root->children.size(); i++)
+		printf("%d %d %d %d %1f %.3f\n",i,root->children[i]->pos.first,root->children[i]->pos.second,root->children[i]->visit,root->children[i]->win,UCB(root->children[i], root->visit));
 	node *pNode;
 	pNode = *std::max_element(
 			root->children.begin(),
@@ -200,6 +202,7 @@ void ai::run()
 				return x < y;
 			}
 	);
+	printf("%d %d\n", pNode->pos.first, pNode->pos.second);
 	emit pos(pNode->pos.first, pNode->pos.second);
 	delete root;
 }
@@ -231,44 +234,94 @@ node *ai::expansion(node *&root)
 {
 	std::vector<std::vector<int> > newMap = map;
 	int size = path.size();
-	for (int i=0; i<size; i++)
+	if (size > 1)
 	{
-		if (path[i]->playerFlag)
-			newMap[path[i]->pos.first][path[i]->pos.second] = 1;
-		else
-			newMap[path[i]->pos.first][path[i]->pos.second] = -1;
+		for (int i = 1; i < size; i++)
+		{
+			if (path[i]->playerFlag)
+				newMap[path[i]->pos.first][path[i]->pos.second] = 1;
+			else
+				newMap[path[i]->pos.first][path[i]->pos.second] = -1;
+		}
+		if (isWin(newMap, root->pos.first, root->pos.second))
+			return root;
 	}
-	if (isWin(newMap, root->pos.first, root->pos.second))
-		return root;
+	bool playerNow = !root->playerFlag;
 	std::vector<std::pair<int, int> > available;
 	for (int i=0; i<kBoardSizeNum; i++)
 		for (int j=0; j<kBoardSizeNum; j++)
-			if (check(newMap, i, j))
+			if (check(newMap, i, j, playerNow)) {
 				available.emplace_back(std::make_pair(i, j));
+			}
 	if (available.empty())
 		return root;
-	bool playerNow = !root->playerFlag;
 	size = available.size();
 	// 创建子节点
 	for (int i=0; i<size; i++)
 	{
 		node *newNode = new node;
 		newNode->playerFlag = playerNow;
+		newNode->pos.first = available[i].first;
+		newNode->pos.second = available[i].second;
 		root->children.emplace_back(newNode);
 	}
 	// 随机选择一个子节点
 	std::uniform_int_distribution<unsigned> dis(0, size);
 	std::random_device rd;
 	std::mt19937 gen(rd());
-	return root->children[dis(gen)];
+	int choose = dis(gen);
+	path.emplace_back(root->children[choose]);
+	return root->children[choose];
 }
 
-int ai::simulation(node *&root)
+int ai::simulation()
 {
-
+	// 枚举所有未走的点
+	std::vector<std::vector<int> > newMap = map;
+	int size = path.size();
+	if (size > 1)
+	{
+		for (int i = 1; i < size; i++)
+		{
+			if (path[i]->playerFlag)
+				newMap[path[i]->pos.first][path[i]->pos.second] = 1;
+			else
+				newMap[path[i]->pos.first][path[i]->pos.second] = -1;
+		}
+	}
+	std::vector<std::pair<int, int> > available;
+	for (int i=0; i<kBoardSizeNum; i++)
+		for (int j=0; j<kBoardSizeNum; j++)
+			if (newMap[i][j] == 0) available.emplace_back(std::make_pair(i, j));
+	std::random_device rd;
+	std::mt19937 g(rd());
+	std::shuffle(available.begin(), available.end(), g);
+	// 随机走
+	bool playerNow = !path[path.size() - 1]->playerFlag;
+	while (!available.empty())
+	{
+		if (playerNow) newMap[available[0].first][available[0].second] = 1;
+		else newMap[available[0].first][available[0].second] = -1;
+		if (isWin(newMap, available[0].first, available[0].second))
+		{
+			if (playerNow) return 1;
+			else return 2;
+		}
+		playerNow = !playerNow;
+		available.erase(available.begin());
+	}
+	return 0;
 }
 
 void ai::backPropagation(int score)
 {
-
+	int size = path.size();
+	for (int i=0; i<size; i++)
+	{
+		path[i]->visit++;
+		if (score == 0)
+			path[i]->win += 0.5;
+		if (score == 1 && path[i]->playerFlag) path[i]->win += 1.0;
+		if (score == 2 && !path[i]->playerFlag) path[i]->win += 1.0;
+	}
 }

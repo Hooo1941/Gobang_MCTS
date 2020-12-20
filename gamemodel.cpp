@@ -81,7 +81,6 @@ for (int j = 0; j < kBoardSizeNum; j++)
 			lineBoard.push_back(0);
 		gameMapVec.push_back(lineBoard);
 	}
-
 	// 黑方下为true,白方下为false
 	playerFlag = true;
 }
