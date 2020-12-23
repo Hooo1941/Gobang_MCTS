@@ -8,7 +8,7 @@ const int kPointR = 3; // 中心红点半径
 const int kMarkSize = 8; // 落子标记边长
 const int kBlockSize = 35; // 格子的大小
 const int kPosDelta = 18; // 鼠标点击的模糊距离上限
-const int kAIDelay = 6; // AI下棋的思考时间(s)
+const int kAIDelay = 5; // AI下棋的思考时间(s)
 const int kBoardSizeNum = 15;
 
 ///** 连五 */
@@ -28,7 +28,7 @@ const int kBoardSizeNum = 15;
 ///** 无穷值表示胜利 */
 //const double kInf = 1e9;
 /** UCB中的探索参数 */
-const double kConfidence = 1.96;
+const double kConfidence = 1;
 
 
 #endif //CONFIG_H

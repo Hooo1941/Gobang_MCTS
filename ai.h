@@ -34,15 +34,14 @@ protected:
 private:
 	std::vector<std::vector<int> > map;
 	bool empty();
-	bool check(std::vector<std::vector<int> > mapCheck, int r, int c, int playerNow) const;
+	static bool check(std::vector<std::vector<int> > &mapCheck, int r, int c, bool playerNow) ;
 	bool playerFlag = true;
 	node *selection(node *root);
 	node *expansion(node *&root);
-	static bool isWin(std::vector<std::vector<int> > gameMapVec, int row, int col);
+	static bool isWin(std::vector<std::vector<int> > &gameMapVec, int row, int col);
 	int simulation();
 	void backPropagation(int score);
 	std::vector <node *> path;
-	bool flag = true;
 signals:
 	void pos(int, int);
 };

@@ -25,7 +25,6 @@ private:
 	int clickPosRow = 0, clickPosCol = 0; // 存储将点击的位置
 	int lastCol = -1, lastRow = -1;
 	bool chessOneByPerson(); // 人执行
-	void chessByAI();
 	void chessOneByAI();
 	bool AIWorking = false;
 private slots:

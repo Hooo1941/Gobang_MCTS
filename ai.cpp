@@ -8,7 +8,7 @@ double UCB(const node *x, int total)
 		return x->win / (double)x->visit + kConfidence * std::sqrt(std::log((double)total) / (double)x->visit);
 }
 
-bool ai::isWin(std::vector<std::vector<int> > gameMapVec, int row, int col)
+bool ai::isWin(std::vector<std::vector<int> > &gameMapVec, int row, int col)
 {
 	for (int i = 0; i < 5; i++)
 	{
@@ -79,7 +79,7 @@ bool ai::empty()
 	return true;
 }
 
-bool ai::check(std::vector<std::vector<int> > mapCheck, int r, int c, int playerNow) const
+bool ai::check(std::vector<std::vector<int> > &mapCheck, int r, int c, bool playerNow)
 {
 	if (mapCheck[r][c] != 0) return false;
 	if (playerNow)
@@ -148,6 +148,17 @@ bool ai::check(std::vector<std::vector<int> > mapCheck, int r, int c, int player
 	return false;
 }
 
+void deleteAll(node *&root)
+{
+	if (!root->children.empty())
+	{
+		int size = root->children.size();
+		for (int i=0; i<size; i++)
+			deleteAll(root->children[i]);
+	}
+	delete(root);
+}
+
 void ai::run()
 {
 	//触发信号
@@ -187,7 +198,7 @@ void ai::run()
 	}
 	printf("%d\n",root->visit);
 	if (root->children[0]->playerFlag) printf("black\n");
-	else printf("white");
+	else printf("white\n");
 	for (int i=0; i<root->children.size(); i++)
 		printf("%d %d %d %d %1f %.3f\n",i,root->children[i]->pos.first,root->children[i]->pos.second,root->children[i]->visit,root->children[i]->win,UCB(root->children[i], root->visit));
 	node *pNode;
@@ -195,16 +206,14 @@ void ai::run()
 			root->children.begin(),
 			root->children.end(),
 			// UCB实现选择
-			[root](const node *a, const node *b)
+			[](const node *a, const node *b)
 			{
-				double x = UCB(a, root->visit);
-				double y = UCB(b, root->visit);
-				return x < y;
+				return a->win / (double)a->visit < b->win / (double)b->visit;
 			}
 	);
 	printf("%d %d\n", pNode->pos.first, pNode->pos.second);
 	emit pos(pNode->pos.first, pNode->pos.second);
-	delete root;
+	deleteAll(root);
 }
 
 node *ai::selection(node *root)
@@ -287,12 +296,22 @@ int ai::simulation()
 				newMap[path[i]->pos.first][path[i]->pos.second] = 1;
 			else
 				newMap[path[i]->pos.first][path[i]->pos.second] = -1;
+			if (isWin(newMap, path[i]->pos.first, path[i]->pos.second))
+			{
+				if (path[i]->playerFlag) return 1;
+				else return 2;
+			}
 		}
 	}
 	std::vector<std::pair<int, int> > available;
+//	for (int i=0; i<kBoardSizeNum; i++)
+//		for (int j=0; j<kBoardSizeNum; j++)
+//			if (newMap[i][j] == 0) available.emplace_back(std::make_pair(i, j));
 	for (int i=0; i<kBoardSizeNum; i++)
 		for (int j=0; j<kBoardSizeNum; j++)
-			if (newMap[i][j] == 0) available.emplace_back(std::make_pair(i, j));
+			if (check(newMap, i, j, false)) {
+				available.emplace_back(std::make_pair(i, j));
+			}
 	std::random_device rd;
 	std::mt19937 g(rd());
 	std::shuffle(available.begin(), available.end(), g);

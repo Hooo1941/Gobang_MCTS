@@ -24,7 +24,7 @@ game::game(QWidget *parent, GameType type) :
 	game_type = type;
 	update();
 	if (game_type == EVE)
-	    chessByAI();
+		chessOneByAI();
 }
 
 void game::paintEvent(QPaintEvent *event)
@@ -81,7 +81,7 @@ void game::paintEvent(QPaintEvent *event)
 				str = "black player";
 			else if (model->gameMapVec[lastRow][lastCol] == -1)
 				str = "white player";
-			QMessageBox::information(this, "congratulations", str + " win!");
+			QMessageBox::information(this, "congratulations", str + " win!" + "last pos:" + QString::number(lastRow + 1,10) + "," + QString::number(lastCol + 1, 10));
 			// 重置游戏状态
 			lastRow = -1;
 			lastCol = -1;
@@ -95,14 +95,14 @@ void game::paintEvent(QPaintEvent *event)
 		QMessageBox::information(this, "oops", "dead game!");
 		model->startGame();
 	}
-}
-
-void game::mouseMoveEvent(QMouseEvent *event)
-{
 	if (game_type == EVE && !AIWorking)
 	{
 		chessOneByAI();
 	}
+}
+
+void game::mouseMoveEvent(QMouseEvent *event)
+{
 	// 通过鼠标的hover确定落子的标记
 	int x = event->x();
 	int y = event->y();
@@ -180,10 +180,6 @@ void game::chessOneByAI()
 	connect(t, SIGNAL(finished()), t, SLOT(deleteLater()));
 	//执行子线程
 	t->start();
-}
-
-void game::chessByAI()
-{
 }
 
 bool game::chessOneByPerson()
